@@ -29,7 +29,7 @@ class MQTTClient:
             self.__client.on_disconnect = self._onDisconnect()
 
         self.__client.username_pw_set(self.__APPID, self.__PSW)
-        self.__client.connect(address, port, 60)
+        self.__client.connect(address, port, 120)
 
     def _onConnect(self):
         def on_connect(client, userdata, flags, rc):
