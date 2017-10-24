@@ -4,5 +4,6 @@
 paho-mqtt
 PyDispatcher
 pytest
+codecov
 pytest-cov
 pep8
