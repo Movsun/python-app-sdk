@@ -18,11 +18,13 @@ services:
 # Install any dependencies for running the tests:
 install:
   - pip install -r requirements.txt
+  - apt-get install mosquitto mosquitto-clients
 
 before_script:
   - docker run -d -p 127.0.0.1:6379:6379 redis
   - docker run -d -p 127.0.0.1:5672:5672 -p 127.0.0.1:1883:1883 -p 127.0.0.1:8883:8883 -v $(pwd)/.env/mqtt:/var/lib/rabbitmq/tls -e RABBITMQ_SSL_CERTFILE=/var/lib/rabbitmq/tls/cert.pem -e RABBITMQ_SSL_KEYFILE=/var/lib/rabbitmq/tls/key.pem -e RABBITMQ_SSL_CACERTFILE=/var/lib/rabbitmq/tls/ca.pem thethingsnetwork/rabbitmq
-
+  - service mosquitto status
+  
 # command to run tests
 script:
   - pep8 --first ttnmqtt/ttnmqtt.py
