@@ -4,6 +4,6 @@
 paho-mqtt
 PyDispatcher
 pytest
-codecov
+coverage
 pytest-cov
 pep8
