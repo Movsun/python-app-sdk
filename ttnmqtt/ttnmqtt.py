@@ -18,14 +18,14 @@ class MQTTClient:
     def getLastMessage(self):
         return self._currentMSG
 
-    def connect(self, address='eu.thethings.network',port=1883):
-        if self.__client.on_connect == None:
+    def connect(self, address='eu.thethings.network', port=1883):
+        if self.__client.on_connect is None:
             self.__client.on_connect = self._onConnect()
-        if self.__client.on_publish == None:
+        if self.__client.on_publish is None:
             self.__client.on_publish = self._onPublish()
-        if self.__client.on_message == None:
+        if self.__client.on_message is None:
             self.__client.on_message = self._onMessage()
-        if self.__client.on_disconnect == None:
+        if self.__client.on_disconnect is None:
             self.__client.on_disconnect = self._onDisconnect()
 
         self.__client.username_pw_set(self.__APPID, self.__PSW)
