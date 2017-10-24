@@ -1,5 +1,4 @@
 import os
-import time
 from ttnmqtt.ttnmqtt import MQTTClient as mqtt
 
 def test_connection():
@@ -11,7 +10,7 @@ def test_disconnection():
     ttn_client = mqtt('appid','appeui','psw')
     ttn_client.connect(os.getenv("MQTT_HOST", "localhost"), os.getenv("MQTT_PORT", 1883))
     ttn_client.disconnect()
-    assert ttn_client.disconectFlag == 1
+    assert ttn_client.disconnectFlag == 1
 
 def test_set_message():
     ttn_client1 = mqtt('appid','appeui','psw')
@@ -36,15 +35,15 @@ def test_background_loop():
     ttn_client.connect(os.getenv("MQTT_HOST", "localhost"), os.getenv("MQTT_PORT", 1883))
     ttn_client.startBackground()
     ttn_client.stopBackground()
-    assert ttn_client.disconectFlag == 1
+    assert ttn_client.disconnectFlag == 1
 
 def test_set_publish():
     ttn_client = mqtt('appid','appeui','psw')
-    ttn_client.connect(os.getenv("MQTT_HOST", "localhost"), os.getenv("MQTT_PORT", 1883))
     def on_publish(client, userdata, mid):
         print('MSG PUBLISHED', mid)
         ttn_client.midCounter = mid
     ttn_client.setPublishBehavior(on_publish)
+    ttn_client.connect(os.getenv("MQTT_HOST", "localhost"), os.getenv("MQTT_PORT", 1883))
     ttn_client.publish('devid', "Hello world!")
     assert ttn_client.midCounter == 1
 
