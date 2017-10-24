@@ -5,7 +5,7 @@ import json
 
 class MQTTClient:
 
-    def __init__(self, APPID, APPEUI, PSW, DEVID=None):
+    def __init__(self, APPID, APPEUI, PSW):
         self.__client = mqtt.Client()
         self.__APPID = APPID
         self.__APPEUI = APPEUI
