@@ -1,7 +1,3 @@
-# This is a simple Travis config for a project that only needs to install pure
-# Python dependencies. For more complex setups, you can use conda on Travis:
-# http://conda.pydata.org/docs/travis.html
-
 language: python
 
 python:
@@ -9,25 +5,17 @@ python:
   - "3.4"
   - "2.7"
 
-
 sudo: required
 
 services:
   - docker
 
-# Install any dependencies for running the tests:
 install:
   - pip install -r requirements.txt
 
 before_script:
-  - docker run -d -p 127.0.0.1:1883:1883
-  - service mosquitto status
+  - docker run -d -p 127.0.0.1:1883:1883 thethingsnetwork/rabbitmq
 
-# command to run tests
 script:
   - pep8 --first ttnmqtt/ttnmqtt.py
   - pytest
-  - pytest --cov=package_template --cov-config .coveragerc
-
-after_success:
-  - codecov
