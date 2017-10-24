@@ -1,13 +1,15 @@
+import os
+
 from ttnmqtt.ttnmqtt import MQTTClient as mqtt
 
 def test_connection():
     ttn_client = mqtt('appid','appeui','psw')
-    ttn_client.connect("localhost", 1883)
+    ttn_client.connect(os.getenv("MQTT_HOST", "localhost"), os.getenv("MQTT_PORT", 1883))
     assert ttn_client.connectFlag == 1
 
 def test_disconnection():
     ttn_client = mqtt('appid','appeui','psw')
-    ttn_client.connect("localhost", 1883)
+    ttn_client.connect(os.getenv("MQTT_HOST", "localhost"), os.getenv("MQTT_PORT", 1883))
     ttn_client.disconnect()
     assert ttn_client.disconectFlag == 1
 
@@ -20,5 +22,5 @@ def test_message():
         assert msg.payload.decode() == "Hello world!"
     ttn_client.setConnectBehavior(on_connect)
     ttn_client.setMessageBehavior(on_message)
-    ttn_client.connect('localhost')
+    ttn_client.connect(os.getenv("MQTT_HOST", "localhost"), os.getenv("MQTT_PORT", 1883))
     ttn_client.publish('devid', "Hello world!")
