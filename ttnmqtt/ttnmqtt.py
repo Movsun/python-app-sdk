@@ -13,7 +13,7 @@ class MQTTClient:
         self._currentMSG = {}
         self._messageHandler = None
         self.connectFlag = 1
-        self.disconectFlag = 1
+        self.disconnectFlag = 1
         self.midCounter = 0
 
     def getLastMessage(self):
@@ -46,7 +46,7 @@ class MQTTClient:
         def on_disconnect(client, userdata, rc):
             if rc != 0:
                 print('UNEXPECTED DISCONNECTION')
-                self.disconectFlag = 0
+                self.disconnectFlag = 0
             else:
                 print('DISCONNECTED')
         return on_disconnect
