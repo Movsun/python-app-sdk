@@ -9,6 +9,12 @@ python:
   - "3.4"
   - "2.7"
 
+
+sudo: required
+
+services:
+  - docker
+
 # Install any dependencies for running the tests:
 install:
   - pip install -r requirements.txt
