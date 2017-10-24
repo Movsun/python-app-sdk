@@ -16,16 +16,11 @@ from ttnmqtt import MQTTClient as mqtt
 
 The class constructor can be called following this scheme:
 ```python
-mqtt(APPID, APPEUI, PSW, DEVID)
+mqtt(APPID, APPEUI, PSW)
 ```
 All the following informations can be found in your The Things Network console.
 *APPID*: this the name you gave your application when you created it.
 *APPEUI*: this the unique identifier of your application on the TTN platform.
-*DEVID*: this the name you gave to your device when it was added to the application. It's an optional argument, so you don't have to provide it to create your client.
-However, if you try to publish a message to your application, you will need to set up the deviceID to which you want to send the message, using the following method:
-```python
-client.setDeviceID(DEVID)
-```
 *PSW*: it can be found at the bottom of your application page under **ACCESS KEYS**.
 
 The constructor returns an MQTTClient object set up with your application informations, ready for connection.
@@ -34,14 +29,10 @@ The constructor returns an MQTTClient object set up with your application inform
 
 Once you created your client, you need to connect it to the The Things Network MQTT broker.
 ```python
-client.connect()
+client.connect(address, port)
 ```
-*client* is the client object you previously created. We simply call the connect() method on it which by default connect you to **eu.thethings.network** via 1883 port.
-If you wish to connect with another configuration, use the following function with the following arguments:
-```python
-client.customConnect(region, port)
-```
-the **port** argument is optional (by default it's 1883) but the **region** is mandatory.
+*client* is the client object you previously created. We simply call the connect() method on it which by default connect you to **eu.thethings.network** via **1883** port.
+If you wish to connect with another configuration, you need to provide the address of the broker and the port to be used for connection.
 
 ### Start and Stop loops
 
@@ -72,19 +63,18 @@ This method will also disconnect your client.
 ### Access messages
 
 Now that our client is connected and looping, we will be able to receive uplink messages. On each message reception, you should see **MESSAGE RECEIVED** in the console.
-Our object/client has two methods that you can call to access the messages:
+Our object/client has one method that you can call to access the message:
 ```python
 # returns the last message received
 client.getLastMessage()
-# returns all the messages received to this point and since the client was created
-client.getAllMessages()
 ```
 
 ### Publish
 If you wish to publish a message to the device you passed in argument while creating the client you can do so, using the following method:
 ```python
-client.publish(message)
+client.publish(deviceID, message)
 ```
+You need to provide the ID of the device which will receive the message (it can be found on the device page of your application in the TTN console). 
 The message that you send to the TTN broker needs to be a string and can follow this example (it's not mandatory but they are mostly build on this format):
  ```json
  {"port": 1, "confirmed": false, "payload_raw": "AA=="}
