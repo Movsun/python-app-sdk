@@ -14,6 +14,7 @@ class MQTTClient:
         self._messageHandler = None
         self.connectFlag = 1
         self.disconectFlag = 1
+        self.midCounter = 0
 
     def getLastMessage(self):
         return self._currentMSG
@@ -61,6 +62,7 @@ class MQTTClient:
     def _onPublish(self):
         def on_publish(client, userdata, mid):
             print('MSG PUBLISHED', mid)
+            self.midCounter = mid
         return on_publish
 
     def setMessageBehavior(self, message):
