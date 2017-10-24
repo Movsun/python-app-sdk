@@ -3,6 +3,7 @@
 #
 paho-mqtt
 PyDispatcher
+pydispatch
 pytest
 codecov
 coverage
