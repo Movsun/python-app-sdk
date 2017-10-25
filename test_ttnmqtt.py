@@ -47,7 +47,7 @@ def test_set_message():
 #    ttn_client.publish('devid', "Hello world!")
 #    assert ttn_client.midCounter == 1
 
-def test_set_behaviors():
+def test_set_globalbehaviors():
     ttn_client = mqtt('appid','appeui','psw')
     def on_connect(client, userdata, flags, rc):
         client.subscribe("appid/devices/devid/down")
@@ -61,7 +61,23 @@ def test_set_behaviors():
     ttn_client.connect(os.getenv("MQTT_HOST", "localhost"), os.getenv("MQTT_PORT", 1883))
     ttn_client.publish('devid', "Hello world!")
 
-def test_message_handler():
+def test_set_behaviors():
+    ttn_client = mqtt('appid','appeui','psw')
+    def on_connect(client, userdata, flags, rc):
+        client.subscribe("appid/devices/devid/down")
+    def on_message(client, userdata, msg):
+        print(msg.payload.decode())
+        assert msg.payload.decode() == "Hello world!"
+    def on_publish(client, userdata, mid):
+        print('MSG PUBLISHED', mid)
+
+    ttn_client.setConnectBehavior(on_connect)
+    ttn_client.setMessageBehavior(on_message)
+    ttn_client.setPublishBehavior(on_publish)
+    ttn_client.connect(os.getenv("MQTT_HOST", "localhost"), os.getenv("MQTT_PORT", 1883))
+    ttn_client.publish('devid', "Hello world!")
+
+def test_first_set_message_handler():
     ttn_client1 = mqtt('appid','appeui','psw')
     ttn_client2 = mqtt('appid','appeui','psw')
 
@@ -75,9 +91,35 @@ def test_message_handler():
 
     def handler():
         print("using message handler")
-        assert ttn_client1.getLastMessage() != '{}'
+        #assert ttn_client1.getLastMessage() != '{}'
 
     ttn_client1.setMessageHandler(handler)
     ttn_client2.startBackground()
     ttn_client1.publish('devid', '{"port": 1, "confirmed": false, "payload_raw": "AQ=="}')
     ttn_client2.publish('devid', '{"port": 1, "confirmed": false, "payload_raw": "AQ=="}')
+    assert ttn_client1.getLastMessage() != '{}'
+
+def test_second_set_message_handler():
+    ttn_client1 = mqtt('appid','appeui','psw')
+    ttn_client2 = mqtt('appid','appeui','psw')
+
+    ttn_client1.connect(os.getenv("MQTT_HOST", "localhost"), os.getenv("MQTT_PORT", 1883))
+
+    def on_connect(client, userdata, flags, rc):
+        client.subscribe("appid/devices/devid/down")
+    ttn_client1.setConnectBehavior(on_connect)
+    ttn_client2.setConnectBehavior(on_connect)
+    ttn_client2.connect(os.getenv("MQTT_HOST", "localhost"), os.getenv("MQTT_PORT", 1883))
+
+    def handler1():
+        print("using message handler1")
+    def handler2():
+        print("using message handler2")
+
+    ttn_client1.setMessageHandler(handler1)
+    ttn_client2.startBackground()
+    ttn_client1.setMessageHandler(handler2)
+    ttn_client1.publish('devid', '{"port": 1, "confirmed": false, "payload_raw": "AQ=="}')
+    ttn_client2.publish('devid', '{"port": 1, "confirmed": false, "payload_raw": "AQ=="}')
+    ttn_client2.stopBackground()
+    assert ttn_client1._MQTTClient__messageHandler == handler2
