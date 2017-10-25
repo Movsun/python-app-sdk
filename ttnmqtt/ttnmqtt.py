@@ -34,9 +34,10 @@ class MQTTClient:
 
     def _onConnect(self):
         def on_connect(client, userdata, flags, rc):
-            res = client.subscribe('+/devices/+/up'.format(self.__APPEUI))
-            if(res[0] == 0):
+            if(rc == 0):
                 print('CONNECTED AND SUBSCRIBED')
+                client.subscribe('+/devices/+/up'.format(self.__APPEUI))
+                self.connectFlag = 1
             else:
                 print('ERROR CONNECTING')
                 self.connectFlag = 0
@@ -106,6 +107,7 @@ class MQTTClient:
 
     def disconnect(self):
         self.__client.disconnect()
+        self.connectFlag = 0
 
     def publish(self, devID, msg):
         result = self.__client.publish(
