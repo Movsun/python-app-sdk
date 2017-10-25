@@ -11,7 +11,7 @@ class MQTTClient:
         self.__APPEUI = APPEUI
         self.__PSW = PSW
         self._currentMSG = {}
-        self._messageHandler = None
+        self.__messageHandler = None
         self.connectFlag = 1
         self.disconnectFlag = 1
         self.midCounter = 0
@@ -80,14 +80,14 @@ class MQTTClient:
         self.__client.on_message = message
 
     def setMessageHandler(self, handler):
-        if self._messageHandler:
+        if self.__messageHandler:
             dispatcher.disconnect(
-                self._messageHandler,
+                self.__messageHandler,
                 signal='New Message',
                 sender=dispatcher.Any)
-        self._messageHandler = handler
+        self.__messageHandler = handler
         dispatcher.connect(
-            self._messageHandler,
+            self.__messageHandler,
             signal='New Message',
             sender=dispatcher.Any)
 
