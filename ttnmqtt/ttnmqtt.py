@@ -23,8 +23,7 @@ class MQTTClient:
     def connect(self, address='eu.thethings.network', port=1883):
         if self.__client.on_connect is None:
             self.__client.on_connect = self._onConnect()
-        if self.__client.on_publish is None:
-            self.__client.on_publish = self._onPublish()
+        self.__client.on_publish = self._onPublish()
         self.__client.on_message = self._onMessage()
         if self.__client.on_disconnect is None:
             self.__client.on_disconnect = self._onDisconnect()
@@ -64,22 +63,20 @@ class MQTTClient:
 
     def _onPublish(self):
         def on_publish(client, userdata, mid):
-            print('MSG PUBLISHED', mid)
+            print('MSG PUBLISHED')
             self.midCounter = mid
+            if self.__events.downlink_msg:
+                self.__events.downlink_msg(mid, client=self)
         return on_publish
 
     def setUplinkCallback(self, callback):
         self.__events.uplink_msg += callback
 
+    def setDownlinkCallback(self, callback):
+        self.__events.downlink_msg += callback
+
     def setConnectBehavior(self, connect):
         self.__client.on_connect = connect
-
-    def setPublishBehavior(self, publish):
-        self.__client.on_publish = publish
-
-    def setGlobalBehavior(self, connect, publish):
-        self.__client.on_connect = connect
-        self.__client.on_publish = publish
 
     def start(self):
         print('LOOP STARTED')
