@@ -7,6 +7,7 @@ import json
 class MyEvents(Events):
     __events__ = ("uplink_msg", "downlink_msg", "connection", "disconnection")
 
+
 class MQTTClient:
 
     def __init__(self, APPID, APPEUI, PSW):
