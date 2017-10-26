@@ -1,7 +1,11 @@
 import paho.mqtt.client as mqtt
 from pydispatch import dispatcher
+from events import Events
 import json
 
+
+class MyEvents(Events):
+    __events__ = ("uplink_msg", "downlink_msg", "connection", "disconnection")
 
 class MQTTClient:
 
@@ -10,14 +14,15 @@ class MQTTClient:
         self.__APPID = APPID
         self.__APPEUI = APPEUI
         self.__PSW = PSW
-        self._currentMSG = {}
+        self.__currentMSG = {}
         self.__messageHandler = None
+        self.__events = MyEvents()
         self.connectFlag = 1
         self.disconnectFlag = 1
         self.midCounter = 0
 
     def getLastMessage(self):
-        return self._currentMSG
+        return self.__currentMSG
 
     def connect(self, address='eu.thethings.network', port=1883):
         if self.__client.on_connect is None:
@@ -56,7 +61,9 @@ class MQTTClient:
         def on_message(client, userdata, msg):
             print('MESSAGE RECEIVED')
             j_msg = json.loads(msg.payload.decode('utf-8'))
-            self._currentMSG = j_msg
+            self.__currentMSG = j_msg
+            devid = j_msg['dev_id']
+            self.__events.uplink_msg(devid, j_msg, client=self)
             dispatcher.send(signal='New Message', sender=self)
         return on_message
 
@@ -65,6 +72,9 @@ class MQTTClient:
             print('MSG PUBLISHED', mid)
             self.midCounter = mid
         return on_publish
+
+    def setUplinkCallback(self, callback):
+        self.__events.uplink_msg += callback
 
     def setMessageBehavior(self, message):
         self.__client.on_message = message
