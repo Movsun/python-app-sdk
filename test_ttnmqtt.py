@@ -1,4 +1,6 @@
 import os
+import time
+import json
 from ttnmqtt.ttnmqtt import MQTTClient as mqtt
 
 
@@ -23,71 +25,74 @@ def test_disconnection():
     assert ttn_client.disconnectFlag == 1
 
 
-def test_set_message():
+def test_set_globalbehaviors():
     ttn_client1 = mqtt('appid', 'appeui', 'psw')
     ttn_client2 = mqtt('appid', 'appeui', 'psw')
 
     def on_connect(client, userdata, flags, rc):
         client.subscribe("appid/devices/devid/down")
 
-    def on_message(client, userdata, msg):
-        client.disconnect()
-        assert msg.payload.decode() == "Hello world!"
+    def on_publish(client, userdata, mid):
+        print('MSG PUBLISHED', mid)
 
-    ttn_client1.setConnectBehavior(on_connect)
-    ttn_client1.setMessageBehavior(on_message)
-    ttn_client2.setConnectBehavior(on_connect)
-    ttn_client2.setMessageBehavior(on_message)
+    def msgcallback(msg, client):
+        print(msg)
+        msgReceived = msg['payload_raw']
+        assert msgReceived == "AQ=="
+        client.stopBackground()
+
+    ttn_client1.setGlobalBehavior(on_connect, on_publish)
+    ttn_client2.setGlobalBehavior(on_connect, on_publish)
+    ttn_client2.setUplinkCallback(msgcallback)
     ttn_client1.connect(
         os.getenv("MQTT_HOST", "localhost"),
         os.getenv("MQTT_PORT", 1883))
     ttn_client2.connect(
         os.getenv("MQTT_HOST", "localhost"),
         os.getenv("MQTT_PORT", 1883))
-    ttn_client1.publish('devid', "Hello world!")
-    ttn_client2.publish('devid', "Hello world!")
+    ttn_client2.startBackground()
+    ttn_client1.publish(
+        'devid',
+        '{"port": 1, "confirmed": "false", "payload_raw": "AQ=="}')
+    ttn_client2.publish(
+        'devid',
+        '{"port": 1, "confirmed": "false", "payload_raw": "AQ=="}')
 
 
-def test_set_globalbehaviors():
-    ttn_client = mqtt('appid', 'appeui', 'psw')
-
-    def on_connect(client, userdata, flags, rc):
-        client.subscribe("appid/devices/devid/down")
-
-    def on_message(client, userdata, msg):
-        print(msg.payload.decode())
-        assert msg.payload.decode() == "Hello world!"
-
-    def on_publish(client, userdata, mid):
-        print('MSG PUBLISHED', mid)
-
-    ttn_client.setGlobalBehavior(on_connect, on_message, on_publish)
-    ttn_client.connect(
-        os.getenv("MQTT_HOST", "localhost"),
-        os.getenv("MQTT_PORT", 1883))
-    ttn_client.publish('devid', "Hello world!")
-
-
-def test_set_behaviors():
-    ttn_client = mqtt('appid', 'appeui', 'psw')
+def test_set_separate_behaviors():
+    ttn_client1 = mqtt('appid', 'appeui', 'psw')
+    ttn_client2 = mqtt('appid', 'appeui', 'psw')
 
     def on_connect(client, userdata, flags, rc):
         client.subscribe("appid/devices/devid/down")
 
-    def on_message(client, userdata, msg):
-        print(msg.payload.decode())
-        assert msg.payload.decode() == "Hello world!"
-
     def on_publish(client, userdata, mid):
         print('MSG PUBLISHED', mid)
 
-    ttn_client.setConnectBehavior(on_connect)
-    ttn_client.setMessageBehavior(on_message)
-    ttn_client.setPublishBehavior(on_publish)
-    ttn_client.connect(
+    def msgcallback(msg, client):
+        print(msg)
+        msgReceived = msg['payload_raw']
+        assert msgReceived == "AQ=="
+        client.stopBackground()
+
+    ttn_client1.setConnectBehavior(on_connect)
+    ttn_client2.setConnectBehavior(on_connect)
+    ttn_client1.setPublishBehavior(on_publish)
+    ttn_client2.setPublishBehavior(on_publish)
+    ttn_client2.setUplinkCallback(msgcallback)
+    ttn_client1.connect(
         os.getenv("MQTT_HOST", "localhost"),
         os.getenv("MQTT_PORT", 1883))
-    ttn_client.publish('devid', "Hello world!")
+    ttn_client2.connect(
+        os.getenv("MQTT_HOST", "localhost"),
+        os.getenv("MQTT_PORT", 1883))
+    ttn_client2.startBackground()
+    ttn_client1.publish(
+        'devid',
+        '{"port": 1, "confirmed": "false", "payload_raw": "AQ=="}')
+    ttn_client2.publish(
+        'devid',
+        '{"port": 1, "confirmed": "false", "payload_raw": "AQ=="}')
 
 
 def test_message_callback():
@@ -100,6 +105,7 @@ def test_message_callback():
 
     def on_connect(client, userdata, flags, rc):
         client.subscribe("appid/devices/devid/down")
+
     ttn_client1.setConnectBehavior(on_connect)
     ttn_client2.setConnectBehavior(on_connect)
     ttn_client2.connect(
@@ -109,6 +115,7 @@ def test_message_callback():
     def msgcallback(msg, client):
         print(msg)
         assert msg == '{"port": 1, "confirmed": false, "payload_raw": "AQ=="}'
+        client.stopBackground()
 
     ttn_client2.setUplinkCallback(msgcallback)
     ttn_client2.startBackground()
