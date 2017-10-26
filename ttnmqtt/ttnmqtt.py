@@ -15,7 +15,6 @@ class MQTTClient:
         self.__APPEUI = APPEUI
         self.__PSW = PSW
         self.__currentMSG = {}
-        self.__messageHandler = None
         self.__events = MyEvents()
         self.connectFlag = 1
         self.disconnectFlag = 0
@@ -26,8 +25,7 @@ class MQTTClient:
             self.__client.on_connect = self._onConnect()
         if self.__client.on_publish is None:
             self.__client.on_publish = self._onPublish()
-        if self.__client.on_message is None:
-            self.__client.on_message = self._onMessage()
+        self.__client.on_message = self._onMessage()
         if self.__client.on_disconnect is None:
             self.__client.on_disconnect = self._onDisconnect()
 
@@ -73,19 +71,15 @@ class MQTTClient:
     def setUplinkCallback(self, callback):
         self.__events.uplink_msg += callback
 
-    def setMessageBehavior(self, message):
-        self.__client.on_message = message
-
     def setConnectBehavior(self, connect):
         self.__client.on_connect = connect
 
     def setPublishBehavior(self, publish):
         self.__client.on_publish = publish
 
-    def setGlobalBehavior(self, connect, message, publish):
+    def setGlobalBehavior(self, connect, publish):
         self.__client.on_connect = connect
         self.__client.on_publish = publish
-        self.__client.on_message = message
 
     def start(self):
         print('LOOP STARTED')
