@@ -87,6 +87,7 @@ def test_message_callback():
         'devid',
         '{"port": 1, "confirmed": false, "payload_raw": "AQ=="}')
 
+
 def test_publish_callback():
     ttn_client1 = mqtt('appid', 'appeui', 'psw')
 
