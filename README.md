@@ -13,9 +13,10 @@
 * [startBackground](#startbackground)
 * [stopBackground](#stopbackground)
 * [setUplinkCallback](#setuplinkcallback)
-* [Receive](#receive)
+* [setConnectBehavior](#setconnectbehavior)
+* [setPublishBehavior](#setpublishbehavior)
+* [setGlobalBehavior](#setglobalbehavior)
 * [Publish](#publish)
-* [Behaviors](#custom_behaviors)
 * [License](#license)
 
 ## Description
