@@ -25,49 +25,12 @@ def test_disconnection():
     assert ttn_client.disconnectFlag == 1
 
 
-def test_set_globalbehaviors():
-    ttn_client1 = mqtt('appid', 'appeui', 'psw')
-    ttn_client2 = mqtt('appid', 'appeui', 'psw')
-
-    def on_connect(client, userdata, flags, rc):
-        client.subscribe("appid/devices/devid/down")
-
-    def on_publish(client, userdata, mid):
-        print('MSG PUBLISHED', mid)
-
-    def msgcallback(msg, client):
-        print(msg)
-        msgReceived = msg['payload_raw']
-        assert msgReceived == "AQ=="
-        client.stopBackground()
-
-    ttn_client1.setGlobalBehavior(on_connect, on_publish)
-    ttn_client2.setGlobalBehavior(on_connect, on_publish)
-    ttn_client2.setUplinkCallback(msgcallback)
-    ttn_client1.connect(
-        os.getenv("MQTT_HOST", "localhost"),
-        os.getenv("MQTT_PORT", 1883))
-    ttn_client2.connect(
-        os.getenv("MQTT_HOST", "localhost"),
-        os.getenv("MQTT_PORT", 1883))
-    ttn_client2.startBackground()
-    ttn_client1.publish(
-        'devid',
-        '{"port": 1, "confirmed": "false", "payload_raw": "AQ=="}')
-    ttn_client2.publish(
-        'devid',
-        '{"port": 1, "confirmed": "false", "payload_raw": "AQ=="}')
-
-
 def test_set_separate_behaviors():
     ttn_client1 = mqtt('appid', 'appeui', 'psw')
     ttn_client2 = mqtt('appid', 'appeui', 'psw')
 
     def on_connect(client, userdata, flags, rc):
         client.subscribe("appid/devices/devid/down")
-
-    def on_publish(client, userdata, mid):
-        print('MSG PUBLISHED', mid)
 
     def msgcallback(msg, client):
         print(msg)
@@ -77,8 +40,6 @@ def test_set_separate_behaviors():
 
     ttn_client1.setConnectBehavior(on_connect)
     ttn_client2.setConnectBehavior(on_connect)
-    ttn_client1.setPublishBehavior(on_publish)
-    ttn_client2.setPublishBehavior(on_publish)
     ttn_client2.setUplinkCallback(msgcallback)
     ttn_client1.connect(
         os.getenv("MQTT_HOST", "localhost"),
@@ -123,6 +84,29 @@ def test_message_callback():
         'devid',
         '{"port": 1, "confirmed": false, "payload_raw": "AQ=="}')
     ttn_client2.publish(
+        'devid',
+        '{"port": 1, "confirmed": false, "payload_raw": "AQ=="}')
+
+def test_publish_callback():
+    ttn_client1 = mqtt('appid', 'appeui', 'psw')
+
+    ttn_client1.connect(
+        os.getenv("MQTT_HOST", "localhost"),
+        os.getenv("MQTT_PORT", 1883))
+
+    def on_connect(client, userdata, flags, rc):
+        client.subscribe("appid/devices/devid/down")
+
+    ttn_client1.setConnectBehavior(on_connect)
+
+    def publishcallback(mid, client):
+        print(mid)
+        assert mid == 1
+        client.stopBackground()
+
+    ttn_client1.setDownlinkCallback(publishcallback)
+    ttn_client1.startBackground()
+    ttn_client1.publish(
         'devid',
         '{"port": 1, "confirmed": false, "payload_raw": "AQ=="}')
 
