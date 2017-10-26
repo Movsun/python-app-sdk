@@ -13,9 +13,10 @@
 * [startBackground](#startbackground)
 * [stopBackground](#stopbackground)
 * [setUplinkCallback](#setuplinkcallback)
+  * [uplinkCallback](#uplinkcallback)
 * [setConnectBehavior](#setconnectbehavior)
-* [setPublishBehavior](#setpublishbehavior)
-* [setGlobalBehavior](#setglobalbehavior)
+* [setPublishCallback](#setpublishcallback)
+  * [publishCallback](#publishcallback)
 * [Publish](#publish)
 * [License](#license)
 
@@ -70,12 +71,13 @@ Stops a loop which was started with the `startBackground()` method. It also disc
 client.stopBackground()
 ```
 ### setUplinkCallback
-Set up the callback function, to be called when an uplink message is received.
+Set the callback function, to be called when an uplink message is received.
 ```python
-client.setUplinkCallback(callback)
+client.setUplinkCallback(uplinkCallback)
 ```
+#### uplinkCallback
 The callback function must be declared in your script following this structure:
-* `callback(msg, client)`
+* `uplinkCallback(msg, client)`
   * `msg`: the message received by the client
   * `client`: the client from which the callback is executed are calling
 
@@ -92,24 +94,17 @@ client.setConnectBehavior(custom_function)
   - `flags`: connection flags
   - `rc`: result from the connect method. `0` if the connection succeeded.
 
-### setPublishBehavior
-Change the publish callback function, following the paho-mqtt standart.
+click [here](https://pypi.python.org/pypi/paho-mqtt/1.3.0) for more information on the paho-mqtt package.
+
+### setPublishCallback
+Set the publish callback function, following the paho-mqtt standart.
 ```python
-client.setPublishBehavior(custom_function)
+client.setPublishCallback(publishCallback)
 ```
-- `custom_function(client, userdata, mid)`: the function which will be the new publish behavior for our MQTT client.
-  - `client`: the MQTT client from which we call the callback.
-  - `userdata`: the data of the user. Default to `''`
+#### publishCallback
+- `publishCallback(mid, client)`: the function which will be the new publish behavior for our MQTT client.
   - `mid`: it matches the mid variable returned from the publish call to allow sent messages to be tracked.
-
-### setGlobalBehavior
-```python
-client.setGlobalBehavior(custom_connect, custom_publish)
-```
-- `custom_connect(client, userdata, flags, rc)`: the function which will be the new connection behavior for our MQTT client.
-- `custom_publish(client, userdata, mid)`: the function which will be the new publish behavior for our MQTT client.
-
-click [here](https://pypi.python.org/pypi/paho-mqtt/1.3.0)for more information on the paho-mqtt package.
+  - `client`: the MQTT client from which we call the callback.
 
 ### publish
 Publishes a message to the MQTT broker.
