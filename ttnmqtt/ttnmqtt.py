@@ -1,5 +1,4 @@
 import paho.mqtt.client as mqtt
-from pydispatch import dispatcher
 from events import Events
 import json
 
@@ -19,11 +18,8 @@ class MQTTClient:
         self.__messageHandler = None
         self.__events = MyEvents()
         self.connectFlag = 1
-        self.disconnectFlag = 1
+        self.disconnectFlag = 0
         self.midCounter = 0
-
-    def getLastMessage(self):
-        return self.__currentMSG
 
     def connect(self, address='eu.thethings.network', port=1883):
         if self.__client.on_connect is None:
@@ -55,6 +51,7 @@ class MQTTClient:
                 print('UNEXPECTED DISCONNECTION')
                 self.disconnectFlag = 0
             else:
+                self.disconnectFlag = 1
                 print('DISCONNECTED')
         return on_disconnect
 
@@ -63,9 +60,8 @@ class MQTTClient:
             print('MESSAGE RECEIVED')
             j_msg = json.loads(msg.payload.decode('utf-8'))
             self.__currentMSG = j_msg
-            devid = j_msg['dev_id']
-            self.__events.uplink_msg(devid, j_msg, client=self)
-            dispatcher.send(signal='New Message', sender=self)
+            if self.__events.uplink_msg:
+                self.__events.uplink_msg(j_msg, client=self)
         return on_message
 
     def _onPublish(self):
@@ -90,18 +86,6 @@ class MQTTClient:
         self.__client.on_connect = connect
         self.__client.on_publish = publish
         self.__client.on_message = message
-
-    def setMessageHandler(self, handler):
-        if self.__messageHandler:
-            dispatcher.disconnect(
-                self.__messageHandler,
-                signal='New Message',
-                sender=dispatcher.Any)
-        self.__messageHandler = handler
-        dispatcher.connect(
-            self.__messageHandler,
-            signal='New Message',
-            sender=dispatcher.Any)
 
     def start(self):
         print('LOOP STARTED')
