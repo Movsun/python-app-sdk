@@ -18,4 +18,5 @@ before_script:
 
 script:
   - pep8 --first ttnmqtt/ttnmqtt.py
+  - pep8 --first test_ttnmqtt.py
   - pytest --cov=ttnmqtt --cov-report html test_*.py
