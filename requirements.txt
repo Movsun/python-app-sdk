@@ -2,6 +2,7 @@
 #######requirements.txt#######
 #
 paho-mqtt
+events
 PyDispatcher
 pydispatch
 pytest
