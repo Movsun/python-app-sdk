@@ -94,7 +94,7 @@ def test_first_set_message_handler():
     ttn_client2.connect(os.getenv("MQTT_HOST", "localhost"), os.getenv("MQTT_PORT", 1883))
 
     def handler():
-        print("using message handler")
+        print("using message handler for client 1")
 
     ttn_client1.setMessageHandler(handler)
     ttn_client2.startBackground()
@@ -105,8 +105,6 @@ def test_first_set_message_handler():
 def test_second_set_message_handler():
     ttn_client1 = mqtt('appid','appeui','psw')
     ttn_client2 = mqtt('appid','appeui','psw')
-
-
 
     def on_connect(client, userdata, flags, rc):
         client.subscribe("appid/devices/devid/down")
@@ -135,6 +133,5 @@ def test_connect_error():
     try:
         ttn_client.connect(os.getenv("MQTT_HOST", "localhost"), os.getenv("MQTT_PORT", 8883))
     except:
-        #print("ERROR CONNECTING")
         ttn_client.stopBackground()
         assert ttn_client.connectFlag == 0
