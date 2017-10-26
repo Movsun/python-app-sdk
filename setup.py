@@ -15,6 +15,7 @@ setup(name='ttnmqtt',
       packages=['ttnmqtt'],
       install_requires=[
           'paho-mqtt',
+          'events',
           'PyDispatcher',
           'pydispatch',
           'pypandoc',
