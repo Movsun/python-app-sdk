@@ -1,4 +1,4 @@
-# This is the official list of The Things Network Go SDK authors for copyright purposes.
+# This is the official list of The Things Network Python SDK authors for copyright purposes.
 #
 # The copyright owners listed in this document agree to release their work under
 # the MIT license that can be found in the LICENSE file.
@@ -7,3 +7,5 @@
 #     Firstname Lastname <email@address>
 #
 # Please keep the list sorted.
+
+Emmanuelle Lejeail <manu.lejeail@gmail.com>
