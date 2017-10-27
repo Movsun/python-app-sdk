@@ -6,9 +6,10 @@ with io.open('README.rst', encoding="utf-8") as f:
     long_description = f.read()
 
 setup(name='ttnmqtt',
-      version='0.9.2',
+      version='0.9.4',
       description='small package to make mqtt connection to ttn',
       long_description = long_description,
+      url = 'https://github.com/TheThingsNetwork/python-app-sdk',
       author='Emmanuelle Lejeail',
       author_email='manu.lejeail@gmail.com',
       license='MIT',
