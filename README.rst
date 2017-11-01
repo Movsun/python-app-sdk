@@ -14,16 +14,20 @@ Table of Contents
 -  `Description <#description>`__
 -  `MQTTClient <#mqttclient>`__
 -  `connect <#connect>`__
--  `disconnect <#disconnect>`__
+-  `close <#close>`__
+-  `startForever <#startforever>`__
 -  `start <#start>`__
--  `startBackground <#startbackground>`__
--  `stopBackground <#stopbackground>`__
+-  `stop <#stop>`__
 -  `setUplinkCallback <#setuplinkcallback>`__
--  `uplinkCallback <#uplinkcallback>`__
+  -  `uplinkCallback <#uplinkcallback>`__
+-  `setConnectCallback <#setconnectcallback>`__
+  -  `connectCallback <#connectcallback>`__
 -  `setConnectBehavior <#setconnectbehavior>`__
--  `setPublishCallback <#setpublishcallback>`__
--  `publishCallback <#publishcallback>`__
--  `Publish <#publish>`__
+-  `setDownlinkCallback <#setpublishcallback>`__
+  -  `downlinkCallback <#publishcallback>`__
+-  `setCloseCallback <#setclosecallback>`__
+  -  `closeCallback <#closecallback>`__
+-  `send <#send>`__
 -  `License <#license>`__
 
 Description
@@ -46,16 +50,15 @@ The class constructor can be called following this scheme:
 
 .. code:: python
 
-    mqtt(APPID, APPEUI, PSW)
+    mqtt(appID, appAccessKey)
 
--  ``APPID``: this the name you gave your application when you created
+-  ``appID``: this the name you gave your application when you created
    it.
--  ``APPEUI``: this the unique identifier of your application on the TTN
-   platform.
--  ``PSW``: it can be found at the bottom of your application page under
-   **ACCESS KEYS**. All the above informations can be found in your The
-   Things Network console. The constructor returns an MQTTClient object
-   set up with your application informations, ready for connection.
+-  ``appAccessKey``: it can be found at the bottom of your application
+   page under **ACCESS KEYS**. All the above informations can be found
+   in your The Things Network console. The constructor returns an
+   MQTTClient object set up with your application informations, ready
+   for connection.
 
 connect
 ~~~~~~~
@@ -71,49 +74,49 @@ broker by default.
    Default to ``eu.thethings.network``
 -  ``port``: the port on which you wish to connect. Default to ``1883``
 
-disconnect
-~~~~~~~~~~
+close
+~~~~~
 
 Disconnects the MQTT client from which we call the method. Also able to
 stop a forever loop in case the client was running on a loop launched by
-the ``start()`` method.
+the ``startForever()`` method.
 
 .. code:: python
 
-    client.disconnect()
+    client.close()
 
-start
-~~~~~
+startForever
+~~~~~~~~~~~~
 
 Start a loop as the main loop of your process. You wont be able to run
 anything else at the same time on this script.
 
 .. code:: python
 
-    client.start()
+    client.startForever()
 
 Take note that a loop need to be started in order to receive uplink
 messages.
 
-startBackground
-~~~~~~~~~~~~~~~
+start
+~~~~~
 
 Starts a loop for the client in the background so that it's possible to
 run another process (such as a web server) in the same script.
 
 .. code:: python
 
-    client.startBackground()
+    client.start()
 
-stopBackground
-~~~~~~~~~~~~~~
+stop
+~~~~
 
-Stops a loop which was started with the ``startBackground()`` method. It
-also disconnect the client.
+Stops a loop which was started with the ``start()`` method. It also
+disconnect the client.
 
 .. code:: python
 
-    client.stopBackground()
+    client.stop()
 
 setUplinkCallback
 ~~~~~~~~~~~~~~~~~
@@ -156,32 +159,71 @@ Change the connect callback function, following the paho-mqtt standart.
 click `here <https://pypi.python.org/pypi/paho-mqtt/1.3.0>`__ for more
 information on the paho-mqtt package.
 
-setPublishCallback
+setConnectCallback
 ~~~~~~~~~~~~~~~~~~
 
-Set the publish callback function, following the paho-mqtt standart.
+Set the connection callback function to be executed when the client
+connect to the broker.
 
 .. code:: python
 
-    client.setPublishCallback(publishCallback)
+    client.setConnectCallback(connectCallback)
 
-publishCallback
+connectCallback
 ^^^^^^^^^^^^^^^
 
--  ``publishCallback(mid, client)``: the function which will be the new
+-  ``connectCallback(res, client)``: the function which will be executed
+   on connection to the broker.
+-  ``res``: the result of the connection. If it's 0, it went well. If
+   not, it means the connection failed.
+-  ``client``: the TTN client from which we call the callback.
+
+setDownlinkCallback
+~~~~~~~~~~~~~~~~~~~
+
+Set the downlink callback function, with actions to execute when a
+downlink message is sent.
+
+.. code:: python
+
+    client.setDownlinkCallback(downlinkCallback)
+
+downlinkCallback
+^^^^^^^^^^^^^^^^
+
+-  ``downlinkCallback(mid, client)``: the function which will be the new
    publish behavior for our MQTT client.
 -  ``mid``: it matches the mid variable returned from the publish call
    to allow sent messages to be tracked.
--  ``client``: the MQTT client from which we call the callback.
+-  ``client``: the TTN client from which we call the callback.
 
-publish
-~~~~~~~
+setCloseCallback
+~~~~~~~~~~~~~~~~
+
+Set the callback to be executed when the connection to the TTN broker is
+closed.
+
+.. code:: python
+
+    client.setCloseCallback(closeCallback)
+
+closeCallback
+^^^^^^^^^^^^^
+
+-  ``closeCallback(res, client)``: the function which will be executed
+   when the connection is closed.
+-  ``res``: the result of the disconnection. If it's 0, it went well. If
+   not, it means the disconnection was unexpected.
+-  ``client``: the TTN client from which we call the callback.
+
+send
+~~~~
 
 Publishes a message to the MQTT broker.
 
 .. code:: python
 
-    client.publish(deviceID, message)
+    client.send(deviceID, message)
 
 -  ``deviceID``: the ID of the device you wish to send the message to.
 -  ``message``: the message to be published to the broker. The message
